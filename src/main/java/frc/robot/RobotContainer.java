@@ -73,9 +73,6 @@ public class RobotContainer {
         
         private void setDefaultCommands(){
             drivetrain.drive(stick.getY(), stick.getTwist());
-
-            SmartDashboard.putNumber("Y-Value", stick.getY());
-            SmartDashboard.putNumber("Twist", stick.getTwist());
         }
 
         private void configureButtonBindings() {
@@ -127,7 +124,6 @@ public class RobotContainer {
                                                                 drivetrain::tankDriveVolts, drivetrain);
             return ramseteCommand;
         }
- 
 
         public Command getAutonomousCommand() {
             return chooser.getSelected();

@@ -21,7 +21,9 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import frc.robot.RobotContainer;
 
 /** Represents a differential drive style drivetrain. */
 public class Drivetrain extends SubsystemBase{
@@ -63,7 +65,7 @@ public class Drivetrain extends SubsystemBase{
 
   public Drivetrain() {
 
-    gyro.reset();
+    //gyro.reset();
 
     gearShift = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 0, 1);  
 
@@ -79,10 +81,6 @@ public class Drivetrain extends SubsystemBase{
     rightEncoder.setPosition(0);
 
     drive = new DifferentialDrive(m_leftGroup, m_rightGroup);
-
-    gyro.zeroYaw();
-
-    burnFlash();
 
     m_odometry = new DifferentialDriveOdometry(getYaw(), leftEncoder.getPosition(), -rightEncoder.getPosition());
   }
