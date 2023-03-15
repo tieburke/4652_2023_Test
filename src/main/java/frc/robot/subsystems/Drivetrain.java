@@ -21,9 +21,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import frc.robot.RobotContainer;
 
 /** Represents a differential drive style drivetrain. */
 public class Drivetrain extends SubsystemBase{
@@ -50,7 +48,7 @@ public class Drivetrain extends SubsystemBase{
   private final MotorControllerGroup m_leftGroup = new MotorControllerGroup(frontLeft, midLeft, backLeft);
   private final MotorControllerGroup m_rightGroup = new MotorControllerGroup(frontRight, midRight, backRight);
 
-  private final AHRS gyro = new AHRS(SPI.Port.kMXP); //, (byte) 200);
+  private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
   private final PIDController m_leftPIDController = new PIDController((309.0 / 4096.0), 0, (15.682 / 4096.0));
   private final PIDController m_rightPIDController = new PIDController((309.0 / 4096.0), 0, (15.682 / 4096.0));
@@ -64,8 +62,6 @@ public class Drivetrain extends SubsystemBase{
   private final DifferentialDrive drive;
 
   public Drivetrain() {
-
-    //gyro.reset();
 
     gearShift = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 0, 1);  
 
@@ -122,6 +118,10 @@ public class Drivetrain extends SubsystemBase{
     var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(xSpeed, 0.0, rot));
     setSpeeds(wheelSpeeds);
   }
+
+  public void arcadeDrive(double speed, double rotate, boolean squareInputs) {
+		drive.arcadeDrive(speed, rotate, squareInputs);
+	}
 
   public void setGearShift(boolean shift){
     if (shift){

@@ -15,10 +15,16 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.commands.ManualElbowDriveDown;
+import frc.robot.commands.ManualElbowDriveUp;
+import frc.robot.commands.ManualWristDriveClockwise;
+import frc.robot.commands.ManualWristDriveCounterclockwise;
 import frc.robot.commands.ResetStuff;
+import frc.robot.commands.SetArmLowGoal;
+import frc.robot.commands.TankDrive;
 import frc.robot.commands.autocommands.AutoDrive;
 import frc.robot.commands.autocommands.AutoPaths.TestPath;
-
+import frc.robot.subsystems.Arm;
 
 
 public class RobotContainer {
@@ -26,6 +32,7 @@ public class RobotContainer {
     private final Joystick stick;
     private final XboxController xbox;
     private final Drivetrain drivetrain;
+    private final Arm arm;
     private SendableChooser<Command> chooser;
 
     final JoystickButton j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12;
@@ -35,6 +42,7 @@ public class RobotContainer {
         stick = new Joystick(0);
         xbox = new XboxController(1);
         drivetrain = new Drivetrain();
+        arm = new Arm();
         chooser = new SendableChooser<>();
 
         j1 = new JoystickButton(stick, 1);
@@ -72,18 +80,23 @@ public class RobotContainer {
     }
         
         private void setDefaultCommands(){
-            drivetrain.drive(stick.getY(), stick.getTwist());
+            drivetrain.setDefaultCommand(new TankDrive(() -> filter(stick.getY())*3, () -> filter(stick.getTwist())*-4, drivetrain));
         }
 
         private void configureButtonBindings() {
+            j1.onTrue(new SetArmLowGoal(arm));
             j2.onTrue(new InstantCommand(drivetrain::switchGears, drivetrain));
             j3.onTrue(new InstantCommand(() -> drivetrain.resetOdometry(new Pose2d())));
             j4.onTrue(new InstantCommand(() -> drivetrain.forgetAngle()));
             j5.onTrue(new InstantCommand(() -> drivetrain.resetEncoders()));
+            xA.whileTrue(new ManualElbowDriveUp(arm));
+            xB.whileTrue(new ManualElbowDriveDown(arm));
+            xX.whileTrue(new ManualWristDriveCounterclockwise(arm));
+            xY.whileTrue(new ManualWristDriveClockwise(arm));
         }
 
         public double filter(double value) {
-            if(Math.abs(value) < 1.5) {
+            if(Math.abs(value) < 0.5) {
               value = 0;
             }
             return value; 

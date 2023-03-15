@@ -6,7 +6,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drivetrain;
 
 public final class TestPath {
@@ -24,8 +23,6 @@ public final class TestPath {
      }
 
       drivetrain.resetOdometry(swervyTraj.getInitialPose());
-      SmartDashboard.putNumber("InitialPoseX", swervyTraj.getInitialPose().getX());
-      SmartDashboard.putNumber("InitialPoseY", swervyTraj.getInitialPose().getY());
       return swervyTraj;
     }
     
