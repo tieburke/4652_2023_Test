@@ -3,12 +3,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 
-public class SetArmLowGoal extends CommandBase {
+public class SetArmMidGoalCube extends CommandBase {
 
 private final Arm arm;
 
   /** Creates a new SetShooterVelocity. */
-  public SetArmLowGoal(Arm arm) {
+  public SetArmMidGoalCube(Arm arm) {
     this.arm = arm;
     addRequirements(arm);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -21,8 +21,10 @@ private final Arm arm;
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    arm.setElbowToAngle(-40);
-    //arm.setElbowToAngle(180);
+    arm.setWristToAngle(-7);
+    if (arm.getWristPosition() < -10){
+      arm.setElbowToAngle(-40);
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -33,6 +35,9 @@ private final Arm arm;
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if (arm.getElbowPosition() < -85){
+      return true;
+    }
     return false;
   }
 }

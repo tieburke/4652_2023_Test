@@ -1,4 +1,4 @@
-package frc.robot.commands.autocommands.AutoPaths;
+package frc.robot.commands;
 
 import java.io.IOException;
 import java.nio.file.Path;

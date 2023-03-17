@@ -1,8 +1,11 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -14,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI;
@@ -41,12 +45,12 @@ public class Drivetrain extends SubsystemBase{
   private CANSparkMax midRight = new CANSparkMax(Constants.MR_DRIVE_PORT, MotorType.kBrushless);
   private CANSparkMax backLeft = new CANSparkMax(Constants.BL_DRIVE_PORT, MotorType.kBrushless);
   private CANSparkMax backRight = new CANSparkMax(Constants.BR_DRIVE_PORT, MotorType.kBrushless);
-
+  
   private final RelativeEncoder leftEncoder = frontLeft.getEncoder();
   private final RelativeEncoder rightEncoder = frontRight.getEncoder();
 
-  private final MotorControllerGroup m_leftGroup = new MotorControllerGroup(frontLeft, midLeft, backLeft);
-  private final MotorControllerGroup m_rightGroup = new MotorControllerGroup(frontRight, midRight, backRight);
+  public final MotorControllerGroup m_leftGroup = new MotorControllerGroup(frontLeft, midLeft, backLeft);
+  public final MotorControllerGroup m_rightGroup = new MotorControllerGroup(frontRight, midRight, backRight);
 
   private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
 
@@ -59,27 +63,53 @@ public class Drivetrain extends SubsystemBase{
 
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(0.18346, 5.6299, 1.3615);
 
-  private final DifferentialDrive drive;
+  private final Compressor pcmCompressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
+
+  //private final DifferentialDrive drive;
 
   public Drivetrain() {
 
-    gearShift = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 0, 1);  
+    gearShift = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 1, 0);  
 
     m_rightGroup.setInverted(true);
 
     leftEncoder.setPositionConversionFactor((2 * Math.PI * kWheelRadius) / gearRatio);
     rightEncoder.setPositionConversionFactor((2 * Math.PI * kWheelRadius) / gearRatio);
 
-    leftEncoder.setVelocityConversionFactor(((2 * Math.PI * kWheelRadius) / gearRatio) / 60.0);
+    leftEncoder.setVelocityConversionFactor(((2
+     * Math.PI * kWheelRadius) / gearRatio) / 60.0);
     rightEncoder.setVelocityConversionFactor(((2 * Math.PI * kWheelRadius) / gearRatio) / 60.0);
 
     leftEncoder.setPosition(0);
     rightEncoder.setPosition(0);
 
-    drive = new DifferentialDrive(m_leftGroup, m_rightGroup);
+    //drive = new DifferentialDrive(m_leftGroup, m_rightGroup);
 
     m_odometry = new DifferentialDriveOdometry(getYaw(), leftEncoder.getPosition(), -rightEncoder.getPosition());
+
+    gearShift.set(DoubleSolenoid.Value.kForward);
+
+    frontLeft.setIdleMode(IdleMode.kBrake);
+    frontRight.setIdleMode(IdleMode.kBrake);
+    midLeft.setIdleMode(IdleMode.kBrake);
+    midRight.setIdleMode(IdleMode.kBrake);
+    backLeft.setIdleMode(IdleMode.kBrake);
+    backRight.setIdleMode(IdleMode.kBrake);
+
   }
+
+  // public void tankDrive(double left, double right, boolean squareInputs){
+  //   drive.tankDrive(left, right, squareInputs);
+  // }
+
+  public void disableCompressor(){
+    pcmCompressor.disable();
+  }
+
+  public void enableCompressor(){
+    pcmCompressor.enableDigital();
+  }
+
 
   public void burnFlash(){
     frontLeft.burnFlash();
@@ -119,9 +149,9 @@ public class Drivetrain extends SubsystemBase{
     setSpeeds(wheelSpeeds);
   }
 
-  public void arcadeDrive(double speed, double rotate, boolean squareInputs) {
-		drive.arcadeDrive(speed, rotate, squareInputs);
-	}
+  // public void arcadeDrive(double speed, double rotate, boolean squareInputs) {
+	// 	drive.arcadeDrive(speed, rotate, squareInputs);
+	// }
 
   public void setGearShift(boolean shift){
     if (shift){
@@ -134,6 +164,7 @@ public class Drivetrain extends SubsystemBase{
 
   public void switchGears(){
     gearShift.toggle();
+    SmartDashboard.putBoolean("ImGonnaKms2", false);
   }
 
   public double getEncoderLeft() {
@@ -205,7 +236,7 @@ public class Drivetrain extends SubsystemBase{
   public void tankDriveVolts(double leftVolts, double rightVolts) {
       m_leftGroup.setVoltage(leftVolts);
       m_rightGroup.setVoltage(rightVolts);
-      drive.feed();
+      // drive.feed();
       SmartDashboard.putNumber("Left Volts", leftVolts);
       SmartDashboard.putNumber("Right Volts", rightVolts);
   }
@@ -219,10 +250,16 @@ public class Drivetrain extends SubsystemBase{
     backRight.getEncoder().setPosition(0);
   }
 
+  public double getRoll(){
+    return gyro.getRoll();
+  }
+
+
   @Override
         public void periodic() {
         // This method will be called once per scheduler run
         updateOdometry();
+        SmartDashboard.putBoolean("ImGonnaKms", true);
         SmartDashboard.putNumber("Gyro Degrees", (getYaw().getDegrees()));
         SmartDashboard.putNumber("rightEncoder", -rightEncoder.getPosition());
         SmartDashboard.putNumber("leftEncoder", leftEncoder.getPosition());      
@@ -230,6 +267,8 @@ public class Drivetrain extends SubsystemBase{
         SmartDashboard.putNumber("PoseY", m_odometry.getPoseMeters().getY());
         SmartDashboard.putNumber("Wheel Speed Left", getLeftEncoderRateAsMeters());
         SmartDashboard.putNumber("Wheel Speed Right", getRightEncoderRateAsMeters());
+        SmartDashboard.putBoolean("PressureSwitchStatus", pcmCompressor.getPressureSwitchValue());
+        SmartDashboard.putNumber("roll", getRoll());
     }
 
 

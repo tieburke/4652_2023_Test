@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.RelativeEncoder;
@@ -19,6 +22,9 @@ public class Arm extends SubsystemBase{
 
     private RelativeEncoder elbowEncoder;
     private RelativeEncoder wristEncoder;
+
+    private final DoubleSolenoid clawToggle;
+    private final DoubleSolenoid pressureToggle;
 
     public Arm(){
 
@@ -44,6 +50,14 @@ public class Arm extends SubsystemBase{
         wristController.setFF(0.1);
         wristController.setOutputRange(-0.2, 0.2);
 
+        clawToggle = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 2, 3); 
+        pressureToggle = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 4, 5);
+
+        clawToggle.set(DoubleSolenoid.Value.kReverse);
+        pressureToggle.set(DoubleSolenoid.Value.kReverse);
+
+        setEncoderCoversions();
+
     }
 
     public void setElbowSpeed(double speed){
@@ -56,18 +70,59 @@ public class Arm extends SubsystemBase{
 
     public void setElbowToAngle(double angle){
         elbowController.setReference(angle, CANSparkMax.ControlType.kPosition);
-        
-        SmartDashboard.putNumber("ElbowGoalAngle", angle);
-        SmartDashboard.putNumber("ElbowEncoder", elbowEncoder.getPosition());
-        SmartDashboard.putNumber("ElbowMotorRate", elbowEncoder.getVelocity());
     }
 
     public void setWristToAngle(double angle){
         wristController.setReference(angle, CANSparkMax.ControlType.kPosition);
-        
-        SmartDashboard.putNumber("WristGoalAngle", angle);
+    }
+
+    public void resetElbowAngle(){
+        ElbowMotor.getEncoder().setPosition(0);
+    }
+
+    public void resetWristAngle(){
+        WristMotor.getEncoder().setPosition(0);
+    }
+
+    public void clawToggle(){
+        clawToggle.toggle();
+    }
+
+    public void pressureToggle(){
+        pressureToggle.toggle();
+    }
+
+    public double getElbowPosition(){
+        return elbowEncoder.getPosition();
+    }
+
+    public double getWristPosition(){
+        return wristEncoder.getPosition();
+    }
+
+    public void setGearShift(boolean shift){
+		if (shift){
+		clawToggle.set(DoubleSolenoid.Value.kForward);
+		}
+		else{
+			clawToggle.set(DoubleSolenoid.Value.kReverse);
+		}
+	}
+
+    public void setEncoderCoversions(){
+        elbowEncoder.setPositionConversionFactor((1.0 / 144) * 360.0); // We do 1 over the gear ratio because 1 rotation of the motor is < 1 rotation of the module
+        elbowEncoder.setVelocityConversionFactor(((1.0 / 144) * 360.0) / 60.0);
+        //wristEncoder.setPositionConversionFactor((1.0 / 64) * 360.0); // We do 1 over the gear ratio because 1 rotation of the motor is < 1 rotation of the module
+        //wristEncoder.setVelocityConversionFactor(((1.0 / 64) * 360.0) / 60.0);
+      }
+    
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("ElbowEncoder", elbowEncoder.getPosition());
+        SmartDashboard.putNumber("ElbowMotorRate", elbowEncoder.getVelocity());
         SmartDashboard.putNumber("WristEncoder", wristEncoder.getPosition());
-        SmartDashboard.putNumber("WristEncoder", wristEncoder.getVelocity());
+        SmartDashboard.putNumber("WristMotorRate", wristEncoder.getVelocity());
     }
 
 }

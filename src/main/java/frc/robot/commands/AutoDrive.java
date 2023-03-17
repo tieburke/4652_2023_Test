@@ -1,4 +1,4 @@
-package frc.robot.commands.autocommands;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -25,16 +25,17 @@ public class AutoDrive extends CommandBase {
         startEncoder = drivetrain.getEncoderAverage();
         drivetrain.forgetAngle();
         angle = (Math.abs(angle) - 12)*angle/Math.abs(angle);
+        //drivetrain.m_leftGroup.setInverted(true);
     }
 
     @Override
     public void execute() {
-        if(angle == 0){
+        //if(angle == 0){
             drivetrain.drive(power, 0);
-        }
-        if(angle != 0){
-            drivetrain.drive(power, angle);
-        }
+        //}
+        //if(angle != 0){
+        //    drivetrain.drive(0, angle);
+        //}
 
         SmartDashboard.putBoolean("Isfinished?", isFinished());
         SmartDashboard.putNumber("startEncoder + distance", startEncoder + distance);
@@ -46,22 +47,23 @@ public class AutoDrive extends CommandBase {
     public void end(boolean interrupted) {
         drivetrain.drive(0, 0);
         SmartDashboard.putBoolean("interrupted", interrupted);
+        //drivetrain.m_rightGroup.setInverted(true);
     }
 
     @Override
     public boolean isFinished() {
-        if (angle == 0){
-            if(drivetrain.getEncoderAverage() >= startEncoder + distance && power < 0) {
+        //if (angle == 0){
+            if(drivetrain.getEncoderAverage() >= startEncoder + distance && power > 0) {
                 return true;
             }
-            if(drivetrain.getEncoderAverage() <= startEncoder - distance && power > 0) {
+            if(drivetrain.getEncoderAverage() <= startEncoder - distance && power < 0) {
                 return true;
             }
-        }
+        //}
 
-        if (angle != 0 && Math.abs(drivetrain.getYaw().getDegrees()) - Math.abs(angle) >= 0){
-            return true;
-        }
+        // if (angle != 0 && Math.abs(drivetrain.getYaw().getDegrees()) - Math.abs(angle) >= 0){
+            // return true;
+        // }
         
         return false;
     }
