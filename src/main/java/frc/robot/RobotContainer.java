@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -10,26 +9,24 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.commands.AutoDrive;
-import frc.robot.commands.Balance;
 import frc.robot.commands.ManualElbowDriveDown;
 import frc.robot.commands.ManualElbowDriveUp;
 import frc.robot.commands.ManualWristDriveClockwise;
 import frc.robot.commands.ManualWristDriveCounterclockwise;
 import frc.robot.commands.ResetStuff;
 import frc.robot.commands.SetArmInitialize;
-import frc.robot.commands.SetArmLowGoal;
 import frc.robot.commands.SetArmMidGoalCone;
 import frc.robot.commands.SetArmMidGoalCube;
 import frc.robot.commands.SetArmPickup;
 import frc.robot.commands.TankDrive;
 import frc.robot.commands.TestPath;
 import frc.robot.subsystems.Arm;
+import frc.robot.commands.Balance;
 
 
 public class RobotContainer {
@@ -43,10 +40,7 @@ public class RobotContainer {
     final JoystickButton j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12;
     final JoystickButton xA, xB, xX, xY, xRB, xLB, xSelect, xMenu, x9, x10;
 
-    private int wristAxis = XboxController.Axis.kLeftY.value;
-    private int elbowAxis = XboxController.Axis.kRightY.value;
-
-    private double initAngle;
+    double initAngle;
 
     public RobotContainer() {
         stick = new Joystick(0);
@@ -87,6 +81,7 @@ public class RobotContainer {
         initializeAutoChooser();
 
         initAngle = drivetrain.getRoll();
+        SmartDashboard.putNumber("initAngle", initAngle);
 
     }
         
@@ -152,8 +147,8 @@ public class RobotContainer {
                     new SetArmInitialize(arm),
                     new AutoDrive(1, 150, 0, drivetrain)
                     ),
-                new AutoDrive(-1, -50, 0, drivetrain)
-                //new Balance(drivetrain, initAngle)
+                new AutoDrive(-1, -50, 0, drivetrain),
+                new Balance(drivetrain, initAngle)
             )
             );
 
@@ -173,7 +168,7 @@ public class RobotContainer {
                                                                 drivetrain::tankDriveVolts, drivetrain);
             return ramseteCommand;
         }
-            //tiernan is a munch
+
         public Command getAutonomousCommand() {
             return chooser.getSelected();
         }

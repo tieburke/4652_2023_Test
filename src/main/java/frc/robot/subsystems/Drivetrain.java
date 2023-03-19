@@ -17,17 +17,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 /** Represents a differential drive style drivetrain. */
 public class Drivetrain extends SubsystemBase{
@@ -65,11 +61,7 @@ public class Drivetrain extends SubsystemBase{
 
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(0.18346, 5.6299, 1.3615);
 
-  //private final Compressor pcmCompressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
-
   //private final DifferentialDrive drive;
-
-  // private final AnalogInput pressureSensor = new AnalogInput(0);
 
   PneumaticHub m_ph = new PneumaticHub(1);
 
@@ -108,15 +100,6 @@ public class Drivetrain extends SubsystemBase{
   // public void tankDrive(double left, double right, boolean squareInputs){
   //   drive.tankDrive(left, right, squareInputs);
   // }
-
-  // public void disableCompressor(){
-  //   pcmCompressor.disable();
-  // }
-
-  // public void enableCompressor(){
-  //   pcmCompressor.enableDigital();
-  // }
-
 
   public void burnFlash(){
     frontLeft.burnFlash();
@@ -285,12 +268,6 @@ public class Drivetrain extends SubsystemBase{
         SmartDashboard.putNumber("Wheel Speed Right", getRightEncoderRateAsMeters());
         SmartDashboard.putNumber("roll", getRoll());
         SmartDashboard.putNumber("PSI(value)", m_ph.getPressure(0));
-        // if (m_ph.getPressure(0) > 115){
-        //   pcmCompressor.disable();
-        // }
-        // if (m_ph.getPressure(0) <= 100){
-        //   pcmCompressor.enableDigital();
-        // }
     }
 
 

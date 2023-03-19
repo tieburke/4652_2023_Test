@@ -6,26 +6,20 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Arm;
-
 
 public class TankDrive extends CommandBase {
   Drivetrain drivetrain;
-  //Arm arm;
-  DoubleSupplier forward, rotation;// elbowSpeed, wristSpeed;
+  DoubleSupplier forward, rotation, throttle;
   BooleanSupplier invert;
 
-  public TankDrive(DoubleSupplier forward, DoubleSupplier rotation, Drivetrain drivetrain){//DoubleSupplier elbowSpeed, DoubleSupplier wristSpeed, Drivetrain drivetrain, Arm arm) {
+  public TankDrive(DoubleSupplier forward, DoubleSupplier rotation, DoubleSupplier throttle, Drivetrain drivetrain){
     
     this.drivetrain = drivetrain;
-    //this.arm = arm;
     addRequirements(drivetrain);
-    //addRequirements(arm);
-
+   
     this.forward = forward;
     this.rotation = rotation;
-    //this.elbowSpeed = elbowSpeed;
-    //this.wristSpeed = wristSpeed;
+    this.throttle = throttle;
     this.drivetrain = drivetrain;
   }
 
@@ -39,19 +33,17 @@ public class TankDrive extends CommandBase {
   
     double speed = forward.getAsDouble();
     double rotate = rotation.getAsDouble();
-    //double elbowPower = elbowSpeed.getAsDouble();
-    //double wristPower = wristSpeed.getAsDouble();
+    double speedControl = throttle.getAsDouble();
     
     drivetrain.drive(speed, rotate);
-
-    //arm.setElbowSpeed(elbowPower);
-    //arm.setWristSpeed(wristPower);
-    
+    //drivetrain.drive(speed*speedControl, rotate*speedControl);
+ 
     SmartDashboard.putNumber("rotate", rotate);
     SmartDashboard.putNumber("forward", speed);
+    SmartDashboard.putNumber("speedControl", speedControl);
 
     if (Math.abs(speed + rotate) < 0.1){
-      drivetrain.drive(0,0);
+      drivetrain.setDriveMotors(0);
     }
 
   }
@@ -59,7 +51,8 @@ public class TankDrive extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivetrain.drive(0, 0);
+    //drivetrain.drive(0, 0);
+    drivetrain.setDriveMotors(0);
   }
 
   // Returns true when the command should end.
