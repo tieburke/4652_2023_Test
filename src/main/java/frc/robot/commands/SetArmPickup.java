@@ -21,7 +21,7 @@ private final Arm arm;
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    arm.setWristToAngle(-10);
+    arm.setWristToAngle(-9);
     }
 
   // Called once the command ends or is interrupted.
@@ -32,7 +32,7 @@ private final Arm arm;
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (arm.getWristPosition() < -15){
+    if (arm.getWristPosition() < -13){
       return true;
     }
     return false;

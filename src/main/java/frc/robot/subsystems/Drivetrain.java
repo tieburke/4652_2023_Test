@@ -17,8 +17,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -36,7 +38,7 @@ public class Drivetrain extends SubsystemBase{
   private static final double kTrackWidth = 0.57; // meters
   private static final double kWheelRadius = 0.0762; // meters
   private static final double gearRatio = 22.67; // low gear
-  
+
 	public final DoubleSolenoid gearShift;
 
   private CANSparkMax frontLeft = new CANSparkMax(Constants.FL_DRIVE_PORT, MotorType.kBrushless);
@@ -53,7 +55,7 @@ public class Drivetrain extends SubsystemBase{
   public final MotorControllerGroup m_rightGroup = new MotorControllerGroup(frontRight, midRight, backRight);
 
   private final AHRS gyro = new AHRS(SPI.Port.kMXP, (byte) 200);
-
+ 
   private final PIDController m_leftPIDController = new PIDController((309.0 / 4096.0), 0, (15.682 / 4096.0));
   private final PIDController m_rightPIDController = new PIDController((309.0 / 4096.0), 0, (15.682 / 4096.0));
 
@@ -63,9 +65,13 @@ public class Drivetrain extends SubsystemBase{
 
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(0.18346, 5.6299, 1.3615);
 
-  private final Compressor pcmCompressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
+  //private final Compressor pcmCompressor = new Compressor(0, PneumaticsModuleType.CTREPCM);
 
   //private final DifferentialDrive drive;
+
+  // private final AnalogInput pressureSensor = new AnalogInput(0);
+
+  PneumaticHub m_ph = new PneumaticHub(1);
 
   public Drivetrain() {
 
@@ -96,19 +102,20 @@ public class Drivetrain extends SubsystemBase{
     backLeft.setIdleMode(IdleMode.kBrake);
     backRight.setIdleMode(IdleMode.kBrake);
 
+    m_ph.enableCompressorAnalog(85, 95);
   }
 
   // public void tankDrive(double left, double right, boolean squareInputs){
   //   drive.tankDrive(left, right, squareInputs);
   // }
 
-  public void disableCompressor(){
-    pcmCompressor.disable();
-  }
+  // public void disableCompressor(){
+  //   pcmCompressor.disable();
+  // }
 
-  public void enableCompressor(){
-    pcmCompressor.enableDigital();
-  }
+  // public void enableCompressor(){
+  //   pcmCompressor.enableDigital();
+  // }
 
 
   public void burnFlash(){
@@ -164,7 +171,6 @@ public class Drivetrain extends SubsystemBase{
 
   public void switchGears(){
     gearShift.toggle();
-    SmartDashboard.putBoolean("ImGonnaKms2", false);
   }
 
   public double getEncoderLeft() {
@@ -254,21 +260,37 @@ public class Drivetrain extends SubsystemBase{
     return gyro.getRoll();
   }
 
+  public void setDriveMotors(double speed){
+    frontLeft.set(speed);
+    frontRight.set(speed);
+    midLeft.set(speed);
+    midRight.set(speed);
+    backLeft.set(speed);
+    backRight.set(speed);
+  }
+
 
   @Override
         public void periodic() {
         // This method will be called once per scheduler run
         updateOdometry();
-        SmartDashboard.putBoolean("ImGonnaKms", true);
         SmartDashboard.putNumber("Gyro Degrees", (getYaw().getDegrees()));
+        SmartDashboard.putNumber("Pitch", gyro.getPitch());
+        SmartDashboard.putNumber("Yaw", gyro.getYaw());
         SmartDashboard.putNumber("rightEncoder", -rightEncoder.getPosition());
         SmartDashboard.putNumber("leftEncoder", leftEncoder.getPosition());      
         SmartDashboard.putNumber("PoseX", m_odometry.getPoseMeters().getX());
         SmartDashboard.putNumber("PoseY", m_odometry.getPoseMeters().getY());
         SmartDashboard.putNumber("Wheel Speed Left", getLeftEncoderRateAsMeters());
         SmartDashboard.putNumber("Wheel Speed Right", getRightEncoderRateAsMeters());
-        SmartDashboard.putBoolean("PressureSwitchStatus", pcmCompressor.getPressureSwitchValue());
         SmartDashboard.putNumber("roll", getRoll());
+        SmartDashboard.putNumber("PSI(value)", m_ph.getPressure(0));
+        // if (m_ph.getPressure(0) > 115){
+        //   pcmCompressor.disable();
+        // }
+        // if (m_ph.getPressure(0) <= 100){
+        //   pcmCompressor.enableDigital();
+        // }
     }
 
 

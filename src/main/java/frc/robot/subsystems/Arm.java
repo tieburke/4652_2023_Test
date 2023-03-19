@@ -26,6 +26,8 @@ public class Arm extends SubsystemBase{
     private final DoubleSolenoid clawToggle;
     private final DoubleSolenoid pressureToggle;
 
+    private boolean pressure;
+
     public Arm(){
 
         ElbowMotor.restoreFactoryDefaults();
@@ -55,6 +57,8 @@ public class Arm extends SubsystemBase{
 
         clawToggle.set(DoubleSolenoid.Value.kReverse);
         pressureToggle.set(DoubleSolenoid.Value.kReverse);
+
+        pressure = false;
 
         setEncoderCoversions();
 
@@ -90,6 +94,12 @@ public class Arm extends SubsystemBase{
 
     public void pressureToggle(){
         pressureToggle.toggle();
+        if (pressure){
+            pressure = false;
+        }
+        else if (!pressure){
+            pressure = true;
+        }
     }
 
     public double getElbowPosition(){
@@ -115,6 +125,11 @@ public class Arm extends SubsystemBase{
         //wristEncoder.setPositionConversionFactor((1.0 / 64) * 360.0); // We do 1 over the gear ratio because 1 rotation of the motor is < 1 rotation of the module
         //wristEncoder.setVelocityConversionFactor(((1.0 / 64) * 360.0) / 60.0);
       }
+
+      public void resetEncoders(){
+        elbowEncoder.setPosition(0);
+        wristEncoder.setPosition(0);
+      }
     
 
     @Override
@@ -123,6 +138,7 @@ public class Arm extends SubsystemBase{
         SmartDashboard.putNumber("ElbowMotorRate", elbowEncoder.getVelocity());
         SmartDashboard.putNumber("WristEncoder", wristEncoder.getPosition());
         SmartDashboard.putNumber("WristMotorRate", wristEncoder.getVelocity());
+        SmartDashboard.putBoolean("pressure", pressure);
     }
 
 }
