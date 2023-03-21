@@ -38,13 +38,13 @@ public class Arm extends SubsystemBase{
         wristController = WristMotor.getPIDController();
     
         elbowEncoder = ElbowMotor.getEncoder();
-        wristEncoder = WristMotor.getEncoder();    
+        wristEncoder = WristMotor.getEncoder();
 
         elbowController.setP(0.05);
         elbowController.setI(0);
         elbowController.setD(0);
         elbowController.setFF(0.1);
-        elbowController.setOutputRange(-0.2, 0.2);
+        elbowController.setOutputRange(-0.3, 0.3);
 
         wristController.setP(0.05);
         wristController.setI(0);
@@ -61,6 +61,8 @@ public class Arm extends SubsystemBase{
         pressure = false;
 
         setEncoderCoversions();
+
+        burnFlash();
 
     }
 
@@ -126,10 +128,15 @@ public class Arm extends SubsystemBase{
         //wristEncoder.setVelocityConversionFactor(((1.0 / 64) * 360.0) / 60.0);
       }
 
-      public void resetEncoders(){
+    public void resetEncoders(){
         elbowEncoder.setPosition(0);
         wristEncoder.setPosition(0);
-      }
+    }
+
+    public void burnFlash(){
+        WristMotor.burnFlash();
+        ElbowMotor.burnFlash();
+    }
     
 
     @Override

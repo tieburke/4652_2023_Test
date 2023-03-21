@@ -45,7 +45,7 @@ public class AutoDrive extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.drive(0, 0);
+        drivetrain.setDriveMotors(0);
         SmartDashboard.putBoolean("interrupted", interrupted);
         //drivetrain.m_rightGroup.setInverted(true);
     }

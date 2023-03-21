@@ -36,13 +36,19 @@ public class TankDrive extends CommandBase {
     double speedControl = throttle.getAsDouble();
     
     drivetrain.drive(speed, rotate);
-    //drivetrain.drive(speed*speedControl, rotate*speedControl);
- 
+    if (speedControl == 0){
+     speedControl = 0.01;
+    }
+
+    speedControl = ((-1*speedControl)+1)/2;
+    
+    drivetrain.drive(speed*speedControl, rotate*speedControl);
+
     SmartDashboard.putNumber("rotate", rotate);
     SmartDashboard.putNumber("forward", speed);
     SmartDashboard.putNumber("speedControl", speedControl);
 
-    if (Math.abs(speed + rotate) < 0.1){
+    if (Math.abs(speed + rotate) < 0.01){
       drivetrain.setDriveMotors(0);
     }
 
@@ -51,7 +57,6 @@ public class TankDrive extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //drivetrain.drive(0, 0);
     drivetrain.setDriveMotors(0);
   }
 

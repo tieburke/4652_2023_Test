@@ -86,11 +86,11 @@ public class RobotContainer {
     }
         
         private void setDefaultCommands(){
-            drivetrain.setDefaultCommand(new TankDrive(() -> (filter(stick.getY()))*-3, () -> (filter(-stick.getTwist()))*4,() -> (filter(stick.getThrottle())), drivetrain));
+            drivetrain.setDefaultCommand(new TankDrive(() -> (filter(stick.getY()))*-2, () -> (filter(-stick.getTwist()))*3,() -> (stick.getThrottle()), drivetrain));
         }
 
         private void configureButtonBindings() {
-            //j2.onTrue(new InstantCommand(drivetrain::switchGears, drivetrain));
+            j2.onTrue(new InstantCommand(drivetrain::switchGears, drivetrain));
             j3.whileTrue(new ManualElbowDriveUp(arm));
             j5.whileTrue(new ManualElbowDriveDown(arm));
             j4.whileTrue(new ManualWristDriveCounterclockwise(arm));
@@ -135,21 +135,23 @@ public class RobotContainer {
             )
             );
 
+            chooser.addOption("placeLowThenDriveOutArea", getAutonomousCommand());
+
             chooser.addOption("placeThenBalance",
-            new SequentialCommandGroup(
-                new SetArmMidGoalCube(arm),
-                new WaitCommand(2),
-                new InstantCommand(arm::clawToggle, arm),
-                new WaitCommand(2),
-                new SetArmMidGoalCone(arm),
-                new WaitCommand(0.5),
-                new ParallelCommandGroup(
-                    new SetArmInitialize(arm),
-                    new AutoDrive(1, 150, 0, drivetrain)
-                    ),
-                new AutoDrive(-1, -50, 0, drivetrain),
-                new Balance(drivetrain, initAngle)
-            )
+            // new SequentialCommandGroup(
+            //     new SetArmMidGoalCube(arm),
+            //     new WaitCommand(2),
+            //     new InstantCommand(arm::clawToggle, arm),
+            //     new WaitCommand(2),
+            //     new SetArmMidGoalCone(arm),
+            //     new WaitCommand(0.5),
+            //     new ParallelCommandGroup(
+            //         new SetArmInitialize(arm),
+            //         new AutoDrive(1, 150, 0, drivetrain)
+            //         ),
+            //     new AutoDrive(-1, -50, 0, drivetrain),
+                new Balance(drivetrain)
+            // )
             );
 
             chooser.addOption("TestPath",

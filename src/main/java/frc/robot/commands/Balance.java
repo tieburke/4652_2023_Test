@@ -12,68 +12,66 @@ public class Balance extends CommandBase {
 
   private Drivetrain drivetrain;
   private Timer timer;
-  private double initAngle;
+  private double corrections = 1;
+  private boolean direction = true, lastDirection;
 
-  public Balance(Drivetrain drivetrain, double initAngle) {
+  public Balance(Drivetrain drivetrain) {
     timer = new Timer();
-    this.initAngle = initAngle;
     this.drivetrain = drivetrain;
-    // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drivetrain);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     timer.reset();
     timer.start();
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(isBalanced() == -1){
-      drivetrain.drive(-0.2, 0);
-    } else if(isBalanced() == 1){
-        drivetrain.drive(0.2, 0);
-    } else {
-      SmartDashboard.putNumber("BalanceTimer", timer.get());
-      drivetrain.drive(0, 0);
+
+    SmartDashboard.putNumber("Timer", timer.get());
+
+    lastDirection = direction;
+
+    if (drivetrain.getRoll() > 0){
+      drivetrain.drive(0.4*corrections, 0);
+      direction = true;
+      SmartDashboard.putNumber("corrections", corrections);
+      SmartDashboard.putBoolean("direction", direction);
+    }
+
+    else if (drivetrain.getRoll() < 0){
+      drivetrain.drive(-0.4*corrections, 0);
+      direction = false;
+      SmartDashboard.putNumber("corrections", corrections);
+      SmartDashboard.putBoolean("direction", direction);
+    }
+
+    if (direction == false && lastDirection == true){
+      corrections = corrections/2;
+    }
+    else if (direction == true && lastDirection == false){
+      corrections = corrections/2;
     }
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivetrain.drive(0, 0);
+    drivetrain.setDriveMotors(0);
     timer.stop();
     timer.reset();
+    SmartDashboard.putBoolean("balancedFinished", true);
   }
 
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-
-    if(isBalanced() == 0 && timer.hasElapsed(2)){
-      return true;
-    } else {
-      return false;
-    }
-
-
+  
+  if (Math.abs(drivetrain.getRoll()) < 1 && timer.get() > 6){
+    return true;
   }
-
-  public int isBalanced(){
-    if(drivetrain.getRoll() < (initAngle -0.5)){
-        timer.reset();
-        return -1;
-    } else if(drivetrain.getRoll() > (initAngle + 0.5)){
-        timer.reset();
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
+  
+    return false;
+  }
 }
