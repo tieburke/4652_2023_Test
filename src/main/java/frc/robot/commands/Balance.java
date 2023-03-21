@@ -37,23 +37,19 @@ public class Balance extends CommandBase {
     if (drivetrain.getRoll() > 0){
       drivetrain.drive(0.4*corrections, 0);
       direction = true;
-      SmartDashboard.putNumber("corrections", corrections);
-      SmartDashboard.putBoolean("direction", direction);
     }
 
     else if (drivetrain.getRoll() < 0){
       drivetrain.drive(-0.4*corrections, 0);
       direction = false;
-      SmartDashboard.putNumber("corrections", corrections);
-      SmartDashboard.putBoolean("direction", direction);
     }
 
-    if (direction == false && lastDirection == true){
+    if (direction != lastDirection){
       corrections = corrections/2;
     }
-    else if (direction == true && lastDirection == false){
-      corrections = corrections/2;
-    }
+    
+    SmartDashboard.putNumber("corrections", corrections);
+    SmartDashboard.putBoolean("direction", direction);    
   }
 
   @Override
@@ -71,7 +67,8 @@ public class Balance extends CommandBase {
   if (Math.abs(drivetrain.getRoll()) < 1 && timer.get() > 6){
     return true;
   }
-  
+  else {
     return false;
+  }
   }
 }
